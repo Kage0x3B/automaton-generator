@@ -1,4 +1,5 @@
 from collections import defaultdict
+from lxml import etree
 
 
 class AutomatonGenerator:
@@ -80,6 +81,68 @@ def vending_machine_func(state, inp):
         return str(out_num), 'NICHTS'
 
 
+class JFFWriter():
+    def __init__(self, objects):
+        self.objects = objects
+        self.states = list(objects.keys())
+        self.file = "out.jff"
+        self.ids={}
+        """
+        <transition>&#13;
+			<from>0</from>&#13;
+			<to>0</to>&#13;
+			<read>q</read>&#13;
+			<transout>c1</transout>&#13;
+		</transition>&#13;
+		
+        """
+
+    def gen_output(self):
+        structure = etree.Element('structure')
+        structure.append(etree.Comment('Created with JFLAP - Python'))
+        tp = etree.SubElement(structure, 'type')
+        tp.text="mealy"
+        am = etree.SubElement(structure, 'automaton')
+
+        #generate nodes#
+        x_coord=0
+        y_coord=0
+        for index,state in enumerate(self.states, start=1):
+
+            if state=="init":
+                s = etree.SubElement(am, 'state')
+                s.attrib['id']=str(index)
+                s.attrib['name']=state
+                x = etree.SubElement(s, "x")
+                x.text=str(x_coord)
+                y = etree.SubElement(s, "y")
+                y.text = str(y_coord)
+                etree.SubElement(s, "initial")
+            else:
+                s = etree.SubElement(am, 'state')
+                s.attrib['id']=str(index)
+                s.attrib['name']=state
+                x = etree.SubElement(s, "x")
+                x.text=str(x_coord)
+                y = etree.SubElement(s, "y")
+                y.text = str(y_coord)
+
+                etree.SubElement(s, "initial")
+            x_coord+=100
+            y_coord+=100
+            self.ids[state]=index
+
+        print(self.ids)
+        for index,state in enumerate(self.states, start=0):
+            for fro, inp, to, op in self.objects[state]:
+                #print(fro, inp, to, op)
+                print(self.ids[fro],self.ids[to],inp,op)
+            #break
+
+
+        with open(self.file,"w")as f:
+            f.write(etree.tostring(structure, pretty_print=True).decode("utf-8"))
+
 if __name__ == '__main__':
     states = ['init']
 
@@ -90,6 +153,7 @@ if __name__ == '__main__':
     inputs = ['1', '2', 'RST', 'KAUFEN', 'CLK']
     outputs = ['NICHTS', 'R1', 'R2', 'WARE']
 
+    #Generate Output file
     automaton_generator = AutomatonGenerator(states, inputs, outputs, vending_machine_func)
-    transitions = automaton_generator.create_automaton()
-    print(transitions)
+    JFFWriter(automaton_generator.create_automaton()).gen_output()
+
