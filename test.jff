@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--Created with JFLAP 7.1.--><structure>
+	<type>mealy</type>
+	<automaton>
+		<!--The list of states.-->
+		<state id="0" name="q0">
+			<x>288.0</x>
+			<y>403.0</y>
+		</state>
+		<state id="1" name="q1">
+			<x>561.0</x>
+			<y>245.0</y>
+		</state>
+		<state id="2" name="q2">
+			<x>587.0</x>
+			<y>498.0</y>
+		</state>
+		<!--The list of transitions.-->
+		<transition>
+			<from>2</from>
+			<to>2</to>
+			<read>e1</read>
+			<transout>aNichts</transout>
+		</transition>
+		<transition>
+			<from>0</from>
+			<to>1</to>
+			<read>e1</read>
+			<transout>aNichts</transout>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>0</to>
+			<read>eReset</read>
+			<transout>aReset</transout>
+		</transition>
+		<transition>
+			<from>2</from>
+			<to>0</to>
+			<read>eReset</read>
+			<transout>eReset</transout>
+		</transition>
+		<transition>
+			<from>0</from>
+			<to>2</to>
+			<read>e2</read>
+			<transout>aNichts</transout>
+		</transition>
+		<transition>
+			<from>1</from>
+			<to>2</to>
+			<read>e1</read>
+			<transout>aNichts</transout>
+		</transition>
+	</automaton>
+</structure>
