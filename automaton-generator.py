@@ -58,7 +58,11 @@ def vending_machine_func(state, inp):
     if inp == 'CLK':
         return state, 'NICHTS'
     elif inp == 'RST':
-        return 'R' + str(state_value), 'NICHTS'
+        if state_value == 0:
+            return state, 'CANCEL'
+        else:
+            return 'R' + str(state_value), 'CANCEL'
+
     elif inp == 'KAUFEN':
         if state_value < 4:
             return state, 'NICHTS'
@@ -87,15 +91,6 @@ class JFFWriter():
         self.states = list(objects.keys())
         self.file = "out.jff"
         self.ids={}
-        """
-        <transition>&#13;
-			<from>0</from>&#13;
-			<to>0</to>&#13;
-			<read>q</read>&#13;
-			<transout>c1</transout>&#13;
-		</transition>&#13;
-		
-        """
 
     def gen_output(self):
         structure = etree.Element('structure')
@@ -107,7 +102,7 @@ class JFFWriter():
         #generate nodes#
         x_coord=0
         y_coord=0
-        for index,state in enumerate(self.states, start=1):
+        for index,state in enumerate(self.states, start=0):
 
             if state=="init":
                 s = etree.SubElement(am, 'state')
@@ -127,20 +122,23 @@ class JFFWriter():
                 y = etree.SubElement(s, "y")
                 y.text = str(y_coord)
 
-                etree.SubElement(s, "initial")
-            x_coord+=100
-            y_coord+=100
+            x_coord+=200
+            y_coord+=200
             self.ids[state]=index
 
-        print(self.ids)
         for index,state in enumerate(self.states, start=0):
             for fro, inp, to, op in self.objects[state]:
-                #print(fro, inp, to, op)
-                print(self.ids[fro],self.ids[to],inp,op)
-            #break
-
-
+                s = etree.SubElement(am, 'transition')
+                f = etree.SubElement(s, "from")
+                f.text=str(self.ids[fro])
+                t = etree.SubElement(s, "to")
+                t.text = str(self.ids[to])
+                i = etree.SubElement(s, "read")
+                i.text = str(inp)
+                o = etree.SubElement(s, "transout")
+                o.text = str(op)
         with open(self.file,"w")as f:
+            f.write('<?xml version="1.0" encoding="UTF-8" standalone="no"?> \n')
             f.write(etree.tostring(structure, pretty_print=True).decode("utf-8"))
 
 if __name__ == '__main__':
